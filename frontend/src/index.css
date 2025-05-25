@@ -1,0 +1,206 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 215 25% 27%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 27%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 27%;
+
+    --primary: 358 61% 56%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 20% 96%;
+    --secondary-foreground: 215 25% 27%;
+
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 25% 40%;
+
+    --accent: 45 100% 50%;
+    --accent-foreground: 215 25% 27%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 358 61% 56%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5% 26%;
+    --sidebar-primary: 240 6% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 5% 96%;
+    --sidebar-accent-foreground: 240 6% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217 91% 60%;
+  }
+
+  .dark {
+    --background: 20 14% 4%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 358 61% 56%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 45 100% 50%;
+    --accent-foreground: 215 25% 27%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 358 61% 56%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-lg;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+  }
+  
+  .button-pulse {
+    @apply hover:animate-pulse-slow transition-all duration-300;
+  }
+  
+  .hero-search {
+    @apply focus:scale-105 transition-all duration-300;
+  }
+  
+  .feature-icon {
+    @apply text-foodtruck-teal hover:text-foodtruck-gold transition-all duration-300 hover:scale-110;
+  }
+
+  /* New highlight classes using the gold color */
+  .gold-highlight {
+    @apply border-b-2 border-foodtruck-gold;
+  }
+  
+  .gold-glow {
+    @apply hover:shadow-[0_0_15px_rgba(255,205,0,0.5)] transition-all duration-300;
+  }
+  
+  .gold-hover {
+    @apply hover:text-foodtruck-gold transition-colors duration-300;
+  }
+  
+  .gold-border-hover {
+    @apply hover:border-foodtruck-gold border transition-colors duration-300;
+  }
+  
+  .gold-scale {
+    @apply hover:scale-105 hover:text-foodtruck-gold transition-all duration-300;
+  }
+  
+  .gold-gradient {
+    @apply bg-gradient-to-r from-foodtruck-teal to-foodtruck-gold bg-clip-text text-transparent;
+  }
+}
+
+/* Custom Font Classes */
+.font-sans {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.font-serif {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Map styling */
+.map-container {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+}
+
+/* Gold highlight effect for active elements */
+.active-gold {
+  @apply relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1/2 after:h-0.5 after:bg-foodtruck-gold;
+}
+
+/* Gold underline animation */
+.gold-underline {
+  @apply relative;
+}
+
+.gold-underline::after {
+  content: '';
+  @apply absolute bottom-0 left-0 w-0 h-0.5 bg-foodtruck-gold transition-all duration-300;
+}
+
+.gold-underline:hover::after {
+  @apply w-full;
+}
+
+/* Button with gold accent */
+.btn-gold-accent {
+  @apply relative overflow-hidden;
+}
+
+.btn-gold-accent::before {
+  content: '';
+  @apply absolute bottom-0 left-0 w-full h-1 bg-foodtruck-gold transform translate-y-full transition-transform duration-300;
+}
+
+.btn-gold-accent:hover::before {
+  @apply transform translate-y-0;
+}
+
