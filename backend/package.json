@@ -5,8 +5,11 @@
   "main": "dist/server.js",
   "scripts": {
     "start": "node dist/server.js",
+    "start:ts": "ts-node src/server.ts",
     "dev": "nodemon src/server.ts",
-    "build": "tsc --noEmit false",
+    "build": "tsc --skipLibCheck --noEmit false",
+    "build:prod": "tsc -p tsconfig.prod.json",
+    "start:dev": "ts-node src/server.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "seed": "ts-node src/utils/seedData.ts",
