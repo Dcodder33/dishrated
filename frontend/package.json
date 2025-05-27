@@ -5,11 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node build.js",
-    "build:vite": "npx vite build",
-    "build:dev": "npx vite build --mode development",
+    "build": "vite build",
+    "build:check": "tsc && vite build",
+    "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "npx vite preview",
+    "preview": "vite preview",
     "deploy": "npm run build && npm run preview"
   },
   "dependencies": {
