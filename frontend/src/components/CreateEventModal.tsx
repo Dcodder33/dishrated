@@ -3,12 +3,23 @@ import { X, Calendar, MapPin, Users, DollarSign, Clock, Tag } from 'lucide-react
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/use-toast';
+import { eventService } from '@/services';
 
 interface CreateEventModalProps {
   isOpen: boolean;
   onClose: () => void;
   onEventCreated?: (event: any) => void;
 }
+
+// Helper function to validate URL
+const isValidUrl = (string: string): boolean => {
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;
+  }
+};
 
 const CreateEventModal: React.FC<CreateEventModalProps> = ({
   isOpen,
@@ -23,7 +34,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     image: '',
     date: '',
     endDate: '',
-    eventType: user?.userType === 'admin' ? 'city_event' : 'truck_event',
+    eventType: user?.role === 'admin' ? 'city_event' : 'truck_event',
     location: {
       address: '',
       coordinates: {
@@ -47,16 +58,25 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    
+
     if (name.includes('.')) {
-      const [parent, child] = name.split('.');
-      setFormData(prev => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent as keyof typeof prev],
-          [child]: value
+      const keys = name.split('.');
+      setFormData(prev => {
+        const newData = { ...prev };
+        let current: any = newData;
+
+        // Navigate to the parent object
+        for (let i = 0; i < keys.length - 1; i++) {
+          if (current[keys[i]] && typeof current[keys[i]] === 'object') {
+            current[keys[i]] = { ...current[keys[i]] };
+            current = current[keys[i]];
+          }
         }
-      }));
+
+        // Set the final value
+        current[keys[keys.length - 1]] = value;
+        return newData;
+      });
     } else {
       setFormData(prev => ({
         ...prev,
@@ -67,7 +87,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -82,6 +102,16 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate image URL
+    if (formData.image && !isValidUrl(formData.image)) {
+      toast({
+        title: "Invalid Image URL",
+        description: "Please enter a valid image URL",
         variant: "destructive"
       });
       return;
@@ -138,8 +168,8 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
         }
       };
 
-      // API call would go here
-      console.log('Creating event:', eventData);
+      // Create event via API
+      const createdEvent = await eventService.createEvent(eventData);
 
       toast({
         title: "Success!",
@@ -153,7 +183,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
         image: '',
         date: '',
         endDate: '',
-        eventType: user?.userType === 'admin' ? 'city_event' : 'truck_event',
+        eventType: user?.role === 'admin' ? 'city_event' : 'truck_event',
         location: {
           address: '',
           coordinates: {
@@ -176,15 +206,17 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
       });
 
       onClose();
-      
+
       if (onEventCreated) {
-        onEventCreated(eventData);
+        onEventCreated(createdEvent);
       }
 
     } catch (error) {
+      console.error('Error creating event:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create event. Please try again.';
       toast({
         title: "Error",
-        description: "Failed to create event. Please try again.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
@@ -211,7 +243,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
           {/* Basic Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Basic Information</h3>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Event Title *
@@ -268,7 +300,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 required
               >
-                {user?.userType === 'admin' && (
+                {user?.role === 'admin' && (
                   <option value="city_event">City Event</option>
                 )}
                 <option value="truck_event">Truck Event</option>
@@ -283,7 +315,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
               <Calendar className="w-5 h-5 mr-2" />
               Date & Time
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -333,7 +365,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
               <MapPin className="w-5 h-5 mr-2" />
               Location
             </h3>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Address *
@@ -385,7 +417,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
           {/* Additional Details */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Additional Details</h3>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Maximum Participants (Optional)
@@ -433,7 +465,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
           {/* Contact & Pricing */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Contact & Pricing</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
