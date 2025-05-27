@@ -43,6 +43,15 @@ export const updateUserSchema = Joi.object({
   }).optional()
 });
 
+export const forgotPasswordSchema = Joi.object({
+  email: Joi.string().email().required()
+});
+
+export const resetPasswordSchema = Joi.object({
+  token: Joi.string().required(),
+  password: Joi.string().min(6).required()
+});
+
 // Food truck validation schemas
 export const createFoodTruckSchema = Joi.object({
   name: Joi.string().min(2).max(100).required(),
@@ -84,7 +93,8 @@ export const createEventSchema = Joi.object({
   title: Joi.string().min(2).max(200).required(),
   description: Joi.string().max(2000).required(),
   image: Joi.string().uri().required(),
-  date: Joi.date().greater('now').required(),
+  date: Joi.date().iso().greater('now').required(),
+  endDate: Joi.date().iso().optional(),
   location: Joi.object({
     address: Joi.string().required(),
     coordinates: Joi.object({
@@ -92,15 +102,27 @@ export const createEventSchema = Joi.object({
       longitude: Joi.number().min(-180).max(180).required()
     }).required()
   }).required(),
-  maxTrucks: Joi.number().min(1).max(100).required(),
-  registrationDeadline: Joi.date().required()
+  eventType: Joi.string().valid('city_event', 'truck_event', 'offer').required(),
+  maxParticipants: Joi.number().min(1).max(1000).optional().allow(null),
+  registrationDeadline: Joi.date().iso().optional(),
+  tags: Joi.array().items(Joi.string()).optional(),
+  requirements: Joi.string().max(1000).optional().allow(''),
+  contactInfo: Joi.object({
+    email: Joi.string().email().optional().allow(''),
+    phone: Joi.string().optional().allow('')
+  }).optional(),
+  pricing: Joi.object({
+    participationFee: Joi.number().min(0).optional(),
+    currency: Joi.string().optional()
+  }).optional()
 });
 
 export const updateEventSchema = Joi.object({
   title: Joi.string().min(2).max(200).optional(),
   description: Joi.string().max(2000).optional(),
-  image: Joi.string().uri().optional(),
+  image: Joi.string().uri().optional().allow(''),
   date: Joi.date().greater('now').optional(),
+  endDate: Joi.date().optional(),
   location: Joi.object({
     address: Joi.string().optional(),
     coordinates: Joi.object({
@@ -108,9 +130,22 @@ export const updateEventSchema = Joi.object({
       longitude: Joi.number().min(-180).max(180).optional()
     }).optional()
   }).optional(),
-  maxTrucks: Joi.number().min(1).max(100).optional(),
+  eventType: Joi.string().valid('city_event', 'truck_event', 'offer').optional(),
+  maxParticipants: Joi.number().min(1).max(1000).optional(),
   registrationDeadline: Joi.date().optional(),
-  status: Joi.string().valid('upcoming', 'ongoing', 'completed', 'cancelled').optional()
+  tags: Joi.array().items(Joi.string()).optional(),
+  requirements: Joi.string().max(1000).optional(),
+  contactInfo: Joi.object({
+    email: Joi.string().email().optional(),
+    phone: Joi.string().optional(),
+    website: Joi.string().uri().optional()
+  }).optional(),
+  pricing: Joi.object({
+    participationFee: Joi.number().min(0).optional(),
+    currency: Joi.string().optional()
+  }).optional(),
+  status: Joi.string().valid('draft', 'published', 'cancelled', 'completed').optional(),
+  featured: Joi.boolean().optional()
 });
 
 // Review validation schemas

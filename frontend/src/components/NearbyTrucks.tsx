@@ -2,91 +2,97 @@ import React, { useState, useEffect } from 'react';
 import FoodTruckCard from './FoodTruckCard';
 import TruckMap from './TruckMap';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 import { MapPin, List, X, Loader2, Navigation, AlertCircle, RefreshCw } from 'lucide-react';
 import { foodTruckService } from '../services';
 import { FoodTruck } from '../types';
 import { useToast } from '../hooks/use-toast';
+import {
+  shouldAskForLocation,
+  getCachedLocation,
+  getLocationWithCache,
+  updateLocationPermission
+} from '@/utils/locationPreferences';
 
 const NearbyTrucks = () => {
+  const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [selectedTruck, setSelectedTruck] = useState<string | null>(null);
   const [trucks, setTrucks] = useState<FoodTruck[]>([]);
   const [loading, setLoading] = useState(true);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [locationStatus, setLocationStatus] = useState<'requesting' | 'granted' | 'denied' | 'unavailable' | 'default'>('requesting');
+  const [locationStatus, setLocationStatus] = useState<'requesting' | 'granted' | 'denied' | 'unavailable'>('requesting');
   const [locationError, setLocationError] = useState<string | null>(null);
   const [showLocationPrompt, setShowLocationPrompt] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    // Show location prompt first
-    setShowLocationPrompt(true);
+    initializeLocation();
   }, []);
 
-  const requestUserLocation = () => {
-    setLocationStatus('requesting');
-    setLocationError(null);
-
-    if (!navigator.geolocation) {
-      setLocationStatus('unavailable');
-      setLocationError('Geolocation is not supported by this browser');
-      useDefaultLocation();
+  const initializeLocation = async () => {
+    // Check if we have cached location first
+    const cachedLocation = getCachedLocation();
+    if (cachedLocation) {
+      setUserLocation({ lat: cachedLocation.lat, lng: cachedLocation.lng });
+      setLocationStatus('granted');
+      fetchNearbyTrucks(cachedLocation.lat, cachedLocation.lng);
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setUserLocation({ lat: latitude, lng: longitude });
-        setLocationStatus('granted');
-        fetchNearbyTrucks(latitude, longitude);
+    // Check if we should ask for location
+    if (shouldAskForLocation()) {
+      setShowLocationPrompt(true);
+    } else {
+      // User has denied permission recently, skip location request
+      setLocationStatus('denied');
+      setLoading(false);
+    }
+  };
 
-        toast({
-          title: "Location Found",
-          description: "Showing food trucks near your current location.",
-        });
-      },
-      (error) => {
-        console.error('Error getting location:', error);
-        setLocationStatus('denied');
+  const requestUserLocation = async () => {
+    setLocationStatus('requesting');
+    setLocationError(null);
 
-        let errorMessage = 'Unable to get your location';
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            errorMessage = 'Location access denied. Using default location instead.';
-            break;
-          case error.POSITION_UNAVAILABLE:
-            errorMessage = 'Location information unavailable. Using default location instead.';
-            break;
-          case error.TIMEOUT:
-            errorMessage = 'Location request timed out. Using default location instead.';
-            break;
-        }
+    try {
+      const locationData = await getLocationWithCache();
+      setUserLocation({ lat: locationData.lat, lng: locationData.lng });
+      setLocationStatus('granted');
+      fetchNearbyTrucks(locationData.lat, locationData.lng);
 
-        setLocationError(errorMessage);
-        useDefaultLocation();
+      toast({
+        title: "Location Found",
+        description: "Showing food trucks near your current location.",
+      });
+    } catch (error: any) {
+      console.error('Error getting location:', error);
+      setLocationStatus('denied');
+      updateLocationPermission(false);
 
-        toast({
-          title: "Location Access Denied",
-          description: errorMessage,
-          variant: "destructive",
-        });
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000 // 5 minutes
+      let errorMessage = 'Unable to get your location';
+      if (error.message.includes('not supported')) {
+        errorMessage = 'Geolocation is not supported by this browser. Please enable location services.';
+        setLocationStatus('unavailable');
+      } else if (error.message.includes('denied')) {
+        errorMessage = 'Location access denied. Please enable location permissions to find nearby food trucks.';
+      } else if (error.message.includes('unavailable')) {
+        errorMessage = 'Location information unavailable. Please check your device settings.';
+      } else if (error.message.includes('timeout')) {
+        errorMessage = 'Location request timed out. Please try again.';
       }
-    );
+
+      setLocationError(errorMessage);
+      setLoading(false);
+
+      toast({
+        title: "Location Access Required",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
   };
 
-  const useDefaultLocation = () => {
-    // Use Bhubaneswar city center as default - more central location
-    const defaultLocation = { lat: 20.2961, lng: 85.8245 }; // Bhubaneswar center
-    setUserLocation(defaultLocation);
-    setLocationStatus('default');
-    fetchNearbyTrucks(defaultLocation.lat, defaultLocation.lng);
-  };
+
 
   const fetchNearbyTrucks = async (lat: number, lng: number) => {
     try {
@@ -159,21 +165,7 @@ const NearbyTrucks = () => {
                 </div>
               )}
 
-              {locationStatus === 'default' && (
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center text-sm text-foodtruck-slate/70">
-                    <MapPin className="h-4 w-4 mr-2" />
-                    Showing trucks near Bhubaneswar
-                  </div>
-                  <button
-                    onClick={requestUserLocation}
-                    className="flex items-center text-sm text-foodtruck-teal hover:text-foodtruck-slate transition-colors"
-                  >
-                    <Navigation className="h-4 w-4 mr-1" />
-                    Use My Location
-                  </button>
-                </div>
-              )}
+
             </div>
           </div>
 
@@ -216,12 +208,22 @@ const NearbyTrucks = () => {
                 viewMode === 'map' ? "block lg:block" : "hidden lg:block"
               )}
             >
-              <TruckMap
-                trucks={trucks}
-                center={userLocation ? [userLocation.lat, userLocation.lng] : undefined}
-                height="400px"
-                highlightedTruckId={selectedTruck}
-              />
+              {userLocation ? (
+                <TruckMap
+                  trucks={trucks}
+                  center={[userLocation.lat, userLocation.lng]}
+                  height="400px"
+                  highlightedTruckId={selectedTruck}
+                />
+              ) : (
+                <div className="h-full bg-gray-100 flex items-center justify-center">
+                  <div className="text-center">
+                    <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 mb-2">Location Required</p>
+                    <p className="text-sm text-gray-500">Please enable location access to view nearby food trucks</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* List Section */}
@@ -243,12 +245,7 @@ const NearbyTrucks = () => {
                       Based on your current location
                     </p>
                   )}
-                  {!loading && locationStatus === 'default' && (
-                    <p className="text-xs text-foodtruck-slate/60 mt-1 flex items-center">
-                      <MapPin className="h-3 w-3 mr-1" />
-                      Near Bhubaneswar, Odisha
-                    </p>
-                  )}
+
                 </div>
 
                 {loading ? (
@@ -284,7 +281,7 @@ const NearbyTrucks = () => {
                         )}
                         onMouseEnter={() => setSelectedTruck(truck._id)}
                         onMouseLeave={() => setSelectedTruck(null)}
-                        onClick={() => window.location.href = `/trucks/${truck._id}`}
+                        onClick={() => navigate(`/trucks/${truck._id}`)}
                       >
                         <div className="flex space-x-4">
                           <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
@@ -347,7 +344,10 @@ const NearbyTrucks = () => {
         </div>
 
         <div className="mt-8 text-center">
-          <button className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-foodtruck-teal text-white font-medium shadow-lg hover:bg-foodtruck-slate transition-colors">
+          <button
+            onClick={() => navigate('/find-trucks')}
+            className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-foodtruck-teal text-white font-medium shadow-lg hover:bg-foodtruck-slate transition-colors"
+          >
             View All Nearby Trucks
           </button>
         </div>
@@ -380,11 +380,13 @@ const NearbyTrucks = () => {
                   <button
                     onClick={() => {
                       setShowLocationPrompt(false);
-                      useDefaultLocation();
+                      setLocationStatus('denied');
+                      setLoading(false);
+                      updateLocationPermission(false);
                     }}
                     className="w-full bg-gray-100 text-foodtruck-slate px-4 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"
                   >
-                    Use Default Location
+                    Skip for now
                   </button>
                 </div>
                 <p className="text-xs text-foodtruck-slate/60 mt-4">

@@ -21,31 +21,31 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
-      <main className="flex-grow">
+
+      <main className="flex-grow pt-16 md:pt-20">
         <Hero />
-        
+
         <div id="nearby-trucks">
           <NearbyTrucks />
         </div>
-        
+
         <div id="trending-trucks">
           <TrendingTrucks />
         </div>
-        
+
         <div id="upcoming-events">
           <UpcomingEvents />
         </div>
-        
+
         <div id="how-it-works">
           <HowItWorks />
         </div>
-        
+
         <div id="newsletter">
           <Newsletter />
         </div>
       </main>
-      
+
       <Footer />
     </div>
   );

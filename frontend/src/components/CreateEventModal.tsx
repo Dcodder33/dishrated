@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/use-toast';
 import { eventService } from '@/services';
+import LocationPicker from './LocationPicker';
+import { LocationCoordinates } from '../utils/locationService';
 
 interface CreateEventModalProps {
   isOpen: boolean;
@@ -34,14 +36,8 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     image: '',
     date: '',
     endDate: '',
-    eventType: user?.role === 'admin' ? 'city_event' : 'truck_event',
-    location: {
-      address: '',
-      coordinates: {
-        latitude: '',
-        longitude: ''
-      }
-    },
+    eventType: 'truck_event',
+    location: null as { address: string; coordinates: LocationCoordinates } | null,
     maxParticipants: '',
     registrationDeadline: '',
     tags: '',
@@ -98,17 +94,17 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     }
 
     // Validation
-    if (!formData.title.trim() || !formData.description.trim() || !formData.date || !formData.location.address.trim()) {
+    if (!formData.title.trim() || !formData.description.trim() || !formData.image.trim() || !formData.date || !formData.location?.address.trim()) {
       toast({
         title: "Validation Error",
-        description: "Please fill in all required fields",
+        description: "Please fill in all required fields including title, description, image, date, and location",
         variant: "destructive"
       });
       return;
     }
 
     // Validate image URL
-    if (formData.image && !isValidUrl(formData.image)) {
+    if (!isValidUrl(formData.image)) {
       toast({
         title: "Invalid Image URL",
         description: "Please enter a valid image URL",
@@ -152,28 +148,39 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
 
       // Prepare data for API
       const eventData = {
-        ...formData,
-        tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+        title: formData.title.trim(),
+        description: formData.description.trim(),
+        image: formData.image.trim(),
+        date: formData.date,
+        endDate: formData.endDate || undefined,
+        eventType: formData.eventType,
+        location: formData.location,
         maxParticipants: formData.maxParticipants ? parseInt(formData.maxParticipants) : null,
-        pricing: {
-          ...formData.pricing,
-          participationFee: parseFloat(formData.pricing.participationFee)
+        registrationDeadline: formData.registrationDeadline || undefined,
+        tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [],
+        requirements: formData.requirements.trim() || undefined,
+        contactInfo: {
+          email: formData.contactInfo.email.trim() || undefined,
+          phone: formData.contactInfo.phone.trim() || undefined
         },
-        location: {
-          ...formData.location,
-          coordinates: formData.location.coordinates.latitude && formData.location.coordinates.longitude ? {
-            latitude: parseFloat(formData.location.coordinates.latitude),
-            longitude: parseFloat(formData.location.coordinates.longitude)
-          } : undefined
+        pricing: {
+          participationFee: parseFloat(formData.pricing.participationFee) || 0,
+          currency: formData.pricing.currency
         }
       };
+
+      console.log('Event data being sent:', eventData);
 
       // Create event via API
       const createdEvent = await eventService.createEvent(eventData);
 
+      const successMessage = formData.eventType === 'city_event' && user?.role !== 'admin'
+        ? "Event created successfully! It will be reviewed by an admin before being published."
+        : "Event created successfully!";
+
       toast({
         title: "Success!",
-        description: "Event created successfully",
+        description: successMessage,
       });
 
       // Reset form
@@ -183,14 +190,8 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
         image: '',
         date: '',
         endDate: '',
-        eventType: user?.role === 'admin' ? 'city_event' : 'truck_event',
-        location: {
-          address: '',
-          coordinates: {
-            latitude: '',
-            longitude: ''
-          }
-        },
+        eventType: 'city_event',
+        location: null,
         maxParticipants: '',
         registrationDeadline: '',
         tags: '',
@@ -211,9 +212,20 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
         onEventCreated(createdEvent);
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating event:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to create event. Please try again.';
+      console.error('Error response:', error.response?.data);
+
+      let errorMessage = 'Failed to create event. Please try again.';
+
+      if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       toast({
         title: "Error",
         description: errorMessage,
@@ -300,12 +312,18 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 required
               >
-                {user?.role === 'admin' && (
-                  <option value="city_event">City Event</option>
-                )}
+                <option value="city_event">City Event {user?.role !== 'admin' && '(Requires Admin Approval)'}</option>
                 <option value="truck_event">Truck Event</option>
                 <option value="offer">Special Offer</option>
               </select>
+              {formData.eventType === 'city_event' && user?.role !== 'admin' && (
+                <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-700">
+                    <strong>Note:</strong> City events require admin approval before being published.
+                    Your event will be reviewed and you'll be notified of the decision.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -368,49 +386,14 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Address *
+                Event Location *
               </label>
-              <input
-                type="text"
-                name="location.address"
-                value={formData.location.address}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                placeholder="Enter event address"
+              <LocationPicker
+                value={formData.location}
+                onChange={(location) => setFormData(prev => ({ ...prev, location }))}
+                placeholder="Search for event location or use current location"
                 required
               />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Latitude (Optional)
-                </label>
-                <input
-                  type="number"
-                  step="any"
-                  name="location.coordinates.latitude"
-                  value={formData.location.coordinates.latitude}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  placeholder="20.2961"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Longitude (Optional)
-                </label>
-                <input
-                  type="number"
-                  step="any"
-                  name="location.coordinates.longitude"
-                  value={formData.location.coordinates.longitude}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  placeholder="85.8245"
-                />
-              </div>
             </div>
           </div>
 

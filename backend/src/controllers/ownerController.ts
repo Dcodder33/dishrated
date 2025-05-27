@@ -165,14 +165,26 @@ export const updateTruckLocation = asyncHandler(async (req: Request, res: Respon
     throw createError('Not authorized to update this truck', 403);
   }
 
+  // Validate coordinates
+  if (!coordinates || typeof coordinates.latitude !== 'number' || typeof coordinates.longitude !== 'number') {
+    throw createError('Valid coordinates are required', 400);
+  }
+
+  if (!address || typeof address !== 'string' || address.trim().length === 0) {
+    throw createError('Valid address is required', 400);
+  }
+
   // Update location
   truck.location = {
-    address,
+    address: address.trim(),
     coordinates: {
       latitude: coordinates.latitude,
       longitude: coordinates.longitude
     }
   };
+
+  // Update last location update timestamp
+  truck.lastLocationUpdate = new Date();
 
   await truck.save();
 
@@ -333,23 +345,23 @@ export const getLocationHistory = asyncHandler(async (req: Request, res: Respons
   const mockHistory = [
     {
       id: '1',
-      address: 'KIIT University, Campus 1, Bhubaneswar',
-      coordinates: { latitude: 20.3538431, longitude: 85.8169059 },
+      address: 'Downtown Food Court Area',
+      coordinates: { latitude: 40.7128, longitude: -74.0060 },
       timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
       duration: 120,
       isActive: true
     },
     {
       id: '2',
-      address: 'Esplanade One Mall, Rasulgarh, Bhubaneswar',
-      coordinates: { latitude: 20.3019, longitude: 85.8449 },
+      address: 'Central Business District',
+      coordinates: { latitude: 40.7589, longitude: -73.9851 },
       timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5 hours ago
       duration: 180
     },
     {
       id: '3',
-      address: 'Patia Square, Bhubaneswar',
-      coordinates: { latitude: 20.3587, longitude: 85.8230 },
+      address: 'University Campus Area',
+      coordinates: { latitude: 40.7505, longitude: -73.9934 },
       timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
       duration: 240
     }
@@ -511,6 +523,242 @@ export const updateTruckAbout = asyncHandler(async (req: Request, res: Response)
     success: true,
     message: 'Truck about information updated successfully',
     data: { truck }
+  };
+
+  res.json(response);
+});
+
+// @desc    Get owner's events (truck events and offers)
+// @route   GET /api/owner/events
+// @access  Private (Owner)
+export const getOwnerEvents = asyncHandler(async (req: Request, res: Response) => {
+  const { status, eventType, page = 1, limit = 10, search } = req.query;
+  const ownerId = req.user!._id;
+
+  const query: any = { organizer: ownerId };
+
+  if (status && status !== 'all') {
+    query.status = status;
+  }
+
+  if (eventType && eventType !== 'all') {
+    query.eventType = eventType;
+  }
+
+  if (search) {
+    query.$or = [
+      { title: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } }
+    ];
+  }
+
+  const pageNum = parseInt(page as string);
+  const limitNum = parseInt(limit as string);
+  const skip = (pageNum - 1) * limitNum;
+
+  const events = await Event.find(query)
+    .populate('organizer', 'name email')
+    .populate('participatingTrucks.truck', 'name')
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limitNum);
+
+  const total = await Event.countDocuments(query);
+
+  const response: ApiResponse = {
+    success: true,
+    message: 'Events retrieved successfully',
+    data: {
+      events,
+      pagination: {
+        current: pageNum,
+        pages: Math.ceil(total / limitNum),
+        total,
+        limit: limitNum
+      }
+    }
+  };
+
+  res.json(response);
+});
+
+// @desc    Create owner event (truck events, offers, or city event requests)
+// @route   POST /api/owner/events
+// @access  Private (Owner)
+export const createOwnerEvent = asyncHandler(async (req: Request, res: Response) => {
+  const {
+    title,
+    description,
+    image,
+    date,
+    endDate,
+    location,
+    eventType,
+    maxParticipants,
+    registrationDeadline,
+    tags,
+    featured,
+    requirements,
+    contactInfo,
+    pricing
+  } = req.body;
+
+  const ownerId = req.user!._id;
+
+  // Validate event type permissions
+  if (eventType === 'city_event') {
+    // City events by owners require admin approval
+    const event = await Event.create({
+      title,
+      description,
+      image,
+      date,
+      endDate,
+      location,
+      eventType: 'city_event',
+      organizer: ownerId,
+      organizerType: 'owner',
+      maxParticipants,
+      registrationDeadline,
+      tags: tags || [],
+      featured: false, // Only admins can set featured
+      requirements,
+      contactInfo,
+      pricing,
+      status: 'draft',
+      approvalStatus: 'pending' // Requires admin approval
+    });
+
+    const response: ApiResponse = {
+      success: true,
+      message: 'City event request submitted for admin approval',
+      data: { event }
+    };
+
+    return res.status(201).json(response);
+  }
+
+  // Truck events and offers are auto-approved
+  if (eventType === 'truck_event' || eventType === 'offer') {
+    const event = await Event.create({
+      title,
+      description,
+      image,
+      date,
+      endDate,
+      location,
+      eventType,
+      organizer: ownerId,
+      organizerType: 'owner',
+      maxParticipants,
+      registrationDeadline,
+      tags: tags || [],
+      featured: featured || false,
+      requirements,
+      contactInfo,
+      pricing,
+      status: 'published',
+      approvalStatus: 'approved' // Auto-approved
+    });
+
+    const response: ApiResponse = {
+      success: true,
+      message: 'Event created successfully',
+      data: { event }
+    };
+
+    return res.status(201).json(response);
+  }
+
+  throw createError('Invalid event type', 400);
+});
+
+// @desc    Get city events for participation
+// @route   GET /api/owner/city-events
+// @access  Private (Owner)
+export const getCityEventsForParticipation = asyncHandler(async (req: Request, res: Response) => {
+  const { page = 1, limit = 10, search } = req.query;
+
+  const query: any = {
+    eventType: 'city_event',
+    organizerType: 'admin',
+    status: 'published',
+    approvalStatus: 'approved'
+  };
+
+  if (search) {
+    query.$or = [
+      { title: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } }
+    ];
+  }
+
+  const pageNum = parseInt(page as string);
+  const limitNum = parseInt(limit as string);
+  const skip = (pageNum - 1) * limitNum;
+
+  const events = await Event.find(query)
+    .populate('organizer', 'name email')
+    .sort({ date: 1 })
+    .skip(skip)
+    .limit(limitNum);
+
+  const total = await Event.countDocuments(query);
+
+  const response: ApiResponse = {
+    success: true,
+    message: 'City events retrieved successfully',
+    data: {
+      events,
+      pagination: {
+        current: pageNum,
+        pages: Math.ceil(total / limitNum),
+        total,
+        limit: limitNum
+      }
+    }
+  };
+
+  res.json(response);
+});
+
+// @desc    Participate in city event
+// @route   POST /api/owner/city-events/:id/participate
+// @access  Private (Owner)
+export const participateInCityEvent = asyncHandler(async (req: Request, res: Response) => {
+  const ownerId = req.user!._id;
+
+  // Get owner's food truck
+  const truck = await FoodTruck.findOne({ owner: ownerId });
+  if (!truck) {
+    throw createError('Food truck not found. Please create your food truck profile first.', 404);
+  }
+
+  const event = await Event.findOne({
+    _id: req.params.id,
+    eventType: 'city_event',
+    organizerType: 'admin',
+    status: 'published',
+    approvalStatus: 'approved'
+  });
+
+  if (!event) {
+    throw createError('City event not found', 404);
+  }
+
+  // Check if truck can participate
+  const canParticipate = event.canTruckParticipate(truck._id);
+  if (!canParticipate.canParticipate) {
+    throw createError(canParticipate.reason!, 400);
+  }
+
+  // Add truck to event
+  await event.addParticipatingTruck(truck._id, 'confirmed');
+
+  const response: ApiResponse = {
+    success: true,
+    message: 'Successfully joined the city event',
+    data: { event }
   };
 
   res.json(response);

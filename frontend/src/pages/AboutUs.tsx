@@ -54,51 +54,25 @@ export const About: React.FC = () => {
           {/* Our Team */}
           <section className="mb-16">
             <h2 className="text-3xl font-bold text-foodtruck-teal mb-8 text-center">Meet Our Team</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-              {/* Team Member 1 */}
-              <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="flex justify-center">
+              {/* Team Member - Dhruv Gorai */}
+              <div className="bg-white rounded-xl shadow-md p-8 max-w-sm">
                 <img
-                  src="https://source.unsplash.com/300x300/?person,portrait"
-                  alt="Alex Johnson"
-                  className="rounded-full w-24 h-24 mx-auto mb-4"
+                  src="/images/dhruv-gorai.jpg.png"
+                  alt="Dhruv Gorai"
+                  className="rounded-full w-32 h-32 mx-auto mb-6 object-cover border-4 border-foodtruck-gold"
                 />
-                <h3 className="text-2xl font-bold text-foodtruck-teal text-center">Alex Johnson</h3>
-                <p className="text-foodtruck-slate text-center">Co-Founder & CEO</p>
-                <p className="text-foodtruck-slate text-sm mt-2 text-center">
-                  Visionary leader with a passion for food and innovation.
-                </p>
-              </div>
-              {/* Team Member 2 */}
-              <div className="bg-white rounded-xl shadow-md p-6">
-                <img
-                  src="https://source.unsplash.com/300x300/?woman,portrait"
-                  alt="Maria Rodriguez"
-                  className="rounded-full w-24 h-24 mx-auto mb-4"
-                />
-                <h3 className="text-2xl font-bold text-foodtruck-teal text-center">Maria Rodriguez</h3>
-                <p className="text-foodtruck-slate text-center">Head of Marketing</p>
-                <p className="text-foodtruck-slate text-sm mt-2 text-center">
-                  Creative strategist driving community engagement.
-                </p>
-              </div>
-              {/* Team Member 3 */}
-              <div className="bg-white rounded-xl shadow-md p-6">
-                <img
-                  src="https://source.unsplash.com/300x300/?person,smile"
-                  alt="Samuel Lee"
-                  className="rounded-full w-24 h-24 mx-auto mb-4"
-                />
-                <h3 className="text-2xl font-bold text-foodtruck-teal text-center">Samuel Lee</h3>
-                <p className="text-foodtruck-slate text-center">CTO</p>
-                <p className="text-foodtruck-slate text-sm mt-2 text-center">
-                  Tech guru and architect behind our real-time platform.
+                <h3 className="text-2xl font-bold text-foodtruck-teal text-center">Dhruv Gorai</h3>
+                <p className="text-foodtruck-slate text-center font-medium">Developer</p>
+                <p className="text-foodtruck-slate text-sm mt-3 text-center leading-relaxed">
+                  Full-stack developer passionate about creating innovative solutions that connect food lovers with amazing culinary experiences.
                 </p>
               </div>
             </div>
           </section>
         </div>
       </main>
-      
+
       <Footer />
     </div>
   );

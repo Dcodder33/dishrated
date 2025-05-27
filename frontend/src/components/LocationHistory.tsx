@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { 
-  MapPin, 
-  Clock, 
+import {
+  MapPin,
+  Clock,
   Navigation,
   Trash2,
   Eye,
@@ -43,35 +43,35 @@ const LocationHistory: React.FC<LocationHistoryProps> = ({
     const mockHistory: LocationHistoryEntry[] = [
       {
         id: '1',
-        address: 'KIIT University, Campus 1, Bhubaneswar',
-        coordinates: { latitude: 20.3538431, longitude: 85.8169059 },
+        address: 'Downtown Food Court Area',
+        coordinates: { latitude: 40.7128, longitude: -74.0060 },
         timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
         duration: 120,
         isActive: true
       },
       {
         id: '2',
-        address: 'Esplanade One Mall, Rasulgarh, Bhubaneswar',
-        coordinates: { latitude: 20.3019, longitude: 85.8449 },
+        address: 'Central Business District',
+        coordinates: { latitude: 40.7589, longitude: -73.9851 },
         timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5 hours ago
         duration: 180
       },
       {
         id: '3',
-        address: 'Patia Square, Bhubaneswar',
-        coordinates: { latitude: 20.3587, longitude: 85.8230 },
+        address: 'University Campus Area',
+        coordinates: { latitude: 40.7505, longitude: -73.9934 },
         timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
         duration: 240
       },
       {
         id: '4',
-        address: 'Kalinga Stadium, Bhubaneswar',
-        coordinates: { latitude: 20.2847, longitude: 85.8233 },
+        address: 'Sports Complex Area',
+        coordinates: { latitude: 40.7282, longitude: -73.9942 },
         timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
         duration: 150
       }
     ];
-    
+
     setHistory(mockHistory);
   }, [truckId]);
 
@@ -87,7 +87,7 @@ const LocationHistory: React.FC<LocationHistoryProps> = ({
   const getTimeAgo = (timestamp: Date) => {
     const now = new Date();
     const diffInMinutes = Math.floor((now.getTime() - timestamp.getTime()) / (1000 * 60));
-    
+
     if (diffInMinutes < 60) {
       return `${diffInMinutes}m ago`;
     } else if (diffInMinutes < 24 * 60) {
@@ -129,7 +129,7 @@ const LocationHistory: React.FC<LocationHistoryProps> = ({
               Recent locations where your food truck has been
             </CardDescription>
           </div>
-          
+
           {history.length > 0 && (
             <Button
               variant="outline"
@@ -176,18 +176,18 @@ const LocationHistory: React.FC<LocationHistoryProps> = ({
                         </Badge>
                       )}
                     </div>
-                    
+
                     <div className="flex items-center text-xs text-gray-500 space-x-4">
                       <div className="flex items-center">
                         <Calendar className="h-3 w-3 mr-1" />
                         {format(entry.timestamp, 'MMM d, h:mm a')}
                       </div>
-                      
+
                       <div className="flex items-center">
                         <Clock className="h-3 w-3 mr-1" />
                         {getTimeAgo(entry.timestamp)}
                       </div>
-                      
+
                       {entry.duration && (
                         <div className="flex items-center">
                           <Navigation className="h-3 w-3 mr-1" />
@@ -195,12 +195,12 @@ const LocationHistory: React.FC<LocationHistoryProps> = ({
                         </div>
                       )}
                     </div>
-                    
+
                     <div className="text-xs text-gray-400 mt-1">
                       {entry.coordinates.latitude.toFixed(4)}, {entry.coordinates.longitude.toFixed(4)}
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center space-x-2 ml-4">
                     <Button
                       variant="ghost"
@@ -210,7 +210,7 @@ const LocationHistory: React.FC<LocationHistoryProps> = ({
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
-                    
+
                     {!entry.isActive && (
                       <Button
                         variant="ghost"

@@ -35,6 +35,16 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
       return;
     }
 
+    // Check if user is banned
+    if (!user.isActive) {
+      res.status(403).json({
+        success: false,
+        message: 'Account has been suspended. Please contact support.',
+        banReason: user.banReason
+      });
+      return;
+    }
+
     req.user = user;
     next();
   } catch (error) {
@@ -74,7 +84,7 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
     if (token) {
       const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
       const user = await User.findById(decoded.userId).select('-password');
-      if (user) {
+      if (user && user.isActive) {
         req.user = user;
       }
     }

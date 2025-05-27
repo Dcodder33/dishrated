@@ -6,7 +6,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Alert, AlertDescription } from '../components/ui/alert';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 
 const Register: React.FC = () => {
@@ -15,7 +15,7 @@ const Register: React.FC = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'user' as 'user' | 'owner',
+    role: 'user' as const,
     phone: ''
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -80,7 +80,7 @@ const Register: React.FC = () => {
           <CardHeader>
             <CardTitle>Join DishRated</CardTitle>
             <CardDescription>
-              Create an account to discover amazing food trucks
+              Create a customer account to discover amazing food trucks
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -129,22 +129,7 @@ const Register: React.FC = () => {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="role">Account Type</Label>
-                <Select
-                  value={formData.role}
-                  onValueChange={(value) => handleChange('role', value)}
-                  disabled={isLoading}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select account type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="user">Customer</SelectItem>
-                    <SelectItem value="owner">Food Truck Owner</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+
 
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
@@ -218,6 +203,19 @@ const Register: React.FC = () => {
                   'Create account'
                 )}
               </Button>
+
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  <strong>Food Truck Owner?</strong> Please{' '}
+                  <Link
+                    to="/owner-signup"
+                    className="font-medium text-blue-600 hover:text-blue-500 underline"
+                  >
+                    apply here
+                  </Link>{' '}
+                  to join our platform as a food truck owner.
+                </p>
+              </div>
             </form>
           </CardContent>
         </Card>

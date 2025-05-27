@@ -4,47 +4,47 @@ import { User, LoginCredentials, RegisterData, AuthResponse } from '../types';
 export class AuthService {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     const response = await apiService.post<AuthResponse>('/auth/login', credentials);
-    
+
     if (response.success && response.data) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       return response.data;
     }
-    
+
     throw new Error(response.message || 'Login failed');
   }
 
   async register(userData: RegisterData): Promise<AuthResponse> {
     const response = await apiService.post<AuthResponse>('/auth/register', userData);
-    
+
     if (response.success && response.data) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       return response.data;
     }
-    
+
     throw new Error(response.message || 'Registration failed');
   }
 
   async getCurrentUser(): Promise<User> {
     const response = await apiService.get<{ user: User }>('/auth/me');
-    
+
     if (response.success && response.data) {
       localStorage.setItem('user', JSON.stringify(response.data.user));
       return response.data.user;
     }
-    
+
     throw new Error(response.message || 'Failed to get user');
   }
 
   async updateProfile(userData: Partial<User>): Promise<User> {
     const response = await apiService.put<{ user: User }>('/auth/me', userData);
-    
+
     if (response.success && response.data) {
       localStorage.setItem('user', JSON.stringify(response.data.user));
       return response.data.user;
     }
-    
+
     throw new Error(response.message || 'Failed to update profile');
   }
 
@@ -53,10 +53,35 @@ export class AuthService {
       currentPassword,
       newPassword
     });
-    
+
     if (!response.success) {
       throw new Error(response.message || 'Failed to change password');
     }
+  }
+
+  async forgotPassword(email: string): Promise<any> {
+    const response = await apiService.post('/auth/forgot-password', { email });
+
+    if (!response.success) {
+      throw new Error(response.message || 'Failed to send reset email');
+    }
+
+    return response.data;
+  }
+
+  async resetPassword(token: string, password: string): Promise<AuthResponse> {
+    const response = await apiService.post<AuthResponse>('/auth/reset-password', {
+      token,
+      password
+    });
+
+    if (response.success && response.data) {
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      return response.data;
+    }
+
+    throw new Error(response.message || 'Failed to reset password');
   }
 
   logout(): void {

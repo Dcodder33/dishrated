@@ -5,6 +5,7 @@ import eventRoutes from './events';
 import reviewRoutes from './reviews';
 import menuRoutes from './menu';
 import ownerRoutes from './owner';
+import adminRoutes from './admin';
 
 const router = Router();
 
@@ -25,5 +26,6 @@ router.use('/events', eventRoutes);
 router.use('/reviews', reviewRoutes);
 router.use('/trucks', menuRoutes); // Menu routes are nested under trucks
 router.use('/owner', ownerRoutes);
+router.use('/admin', adminRoutes);
 
 export default router;

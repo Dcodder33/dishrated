@@ -12,7 +12,11 @@ import {
   clearLocationHistory,
   updateTruckBasicInfo,
   updateTruckSchedule,
-  updateTruckAbout
+  updateTruckAbout,
+  getOwnerEvents,
+  createOwnerEvent,
+  getCityEventsForParticipation,
+  participateInCityEvent
 } from '../controllers';
 import {
   validate,
@@ -111,5 +115,18 @@ router.put(
   authorize('owner'),
   updateTruckAbout
 );
+
+// Event management routes
+// @route   GET /api/owner/events
+router.get('/events', authenticate, authorize('owner'), getOwnerEvents);
+
+// @route   POST /api/owner/events
+router.post('/events', authenticate, authorize('owner'), createOwnerEvent);
+
+// @route   GET /api/owner/city-events
+router.get('/city-events', authenticate, authorize('owner'), getCityEventsForParticipation);
+
+// @route   POST /api/owner/city-events/:id/participate
+router.post('/city-events/:id/participate', authenticate, authorize('owner'), participateInCityEvent);
 
 export default router;

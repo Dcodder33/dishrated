@@ -118,6 +118,32 @@ const eventSchema = new Schema<IEvent>({
     type: String,
     enum: ['draft', 'published', 'cancelled', 'completed'],
     default: 'published'
+  },
+  approvalStatus: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: function() {
+      // Auto-approve for admin-created city events and owner-created truck events/offers
+      if (this.eventType === 'city_event' && this.organizerType === 'admin') {
+        return 'approved';
+      }
+      if ((this.eventType === 'truck_event' || this.eventType === 'offer') && this.organizerType === 'owner') {
+        return 'approved';
+      }
+      // Require approval for owner-created city events
+      return 'pending';
+    }
+  },
+  approvedBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  approvedAt: {
+    type: Date
+  },
+  rejectionReason: {
+    type: String,
+    maxlength: [500, 'Rejection reason cannot exceed 500 characters']
   }
 }, {
   timestamps: true,
@@ -131,6 +157,8 @@ eventSchema.index({ organizer: 1 });
 eventSchema.index({ 'location.coordinates': '2dsphere' });
 eventSchema.index({ status: 1 });
 eventSchema.index({ eventType: 1 });
+eventSchema.index({ approvalStatus: 1 });
+eventSchema.index({ organizerType: 1, eventType: 1 });
 
 // Text index for search functionality
 eventSchema.index({

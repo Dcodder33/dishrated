@@ -4,13 +4,17 @@ import {
   login,
   getMe,
   updateProfile,
-  changePassword
+  changePassword,
+  forgotPassword,
+  resetPassword
 } from '../controllers';
 import {
   validate,
   registerSchema,
   loginSchema,
   updateUserSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
   authenticate
 } from '../middleware';
 
@@ -30,5 +34,11 @@ router.put('/me', authenticate, validate(updateUserSchema), updateProfile);
 
 // @route   PUT /api/auth/change-password
 router.put('/change-password', authenticate, changePassword);
+
+// @route   POST /api/auth/forgot-password
+router.post('/forgot-password', validate(forgotPasswordSchema), forgotPassword);
+
+// @route   POST /api/auth/reset-password
+router.post('/reset-password', validate(resetPasswordSchema), resetPassword);
 
 export default router;

@@ -27,7 +27,7 @@ interface TruckMapProps {
     status: string;
     rating: number;
   }>;
-  center?: [number, number];
+  center: [number, number];
   zoom?: number;
   height?: string;
   highlightedTruckId?: string | null;
@@ -36,7 +36,7 @@ interface TruckMapProps {
 
 const TruckMap: React.FC<TruckMapProps> = ({
   trucks = [],
-  center = [20.3538431, 85.8169059], // KIIT Campus coordinates
+  center,
   zoom = 13,
   height = "400px",
   highlightedTruckId = null,
@@ -198,7 +198,7 @@ const TruckMap: React.FC<TruckMapProps> = ({
 
           L.marker(center, { icon: centerIcon })
             .addTo(map)
-            .bindPopup('<div class="p-2"><strong>KIIT Campus</strong><br/>Bhubaneswar, Odisha</div>');
+            .bindPopup('<div class="p-2"><strong>Your Location</strong><br/>Search area center</div>');
         }
 
         // Force map to resize after initialization

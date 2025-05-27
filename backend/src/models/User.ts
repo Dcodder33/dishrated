@@ -37,6 +37,29 @@ const userSchema = new Schema<IUser>({
   phone: {
     type: String,
     match: [/^\+?[\d\s-()]+$/, 'Please enter a valid phone number']
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  banReason: {
+    type: String,
+    maxlength: [500, 'Ban reason cannot be more than 500 characters']
+  },
+  bannedAt: {
+    type: Date
+  },
+  bannedBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  resetPasswordToken: {
+    type: String,
+    select: false
+  },
+  resetPasswordExpires: {
+    type: Date,
+    select: false
   }
 }, {
   timestamps: true,
@@ -52,6 +75,7 @@ userSchema.virtual('userType').get(function() {
 // Index for better query performance
 userSchema.index({ email: 1 });
 userSchema.index({ role: 1 });
+userSchema.index({ isActive: 1 });
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {

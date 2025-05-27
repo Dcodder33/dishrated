@@ -306,7 +306,7 @@ const Events: React.FC = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-red-600 via-red-500 to-orange-500 overflow-hidden">
+      <div className="relative bg-gradient-to-r from-foodtruck-teal via-foodtruck-teal to-red-400 overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="absolute inset-0 opacity-30">
@@ -382,7 +382,7 @@ const Events: React.FC = () => {
                 <select
                   value={selectedEventType}
                   onChange={(e) => setSelectedEventType(e.target.value)}
-                  className="appearance-none bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-full text-sm font-medium border-none focus:ring-2 focus:ring-red-300 focus:outline-none cursor-pointer hover:from-red-600 hover:to-red-700 transition-all duration-200"
+                  className="appearance-none bg-gradient-to-r from-foodtruck-teal to-red-500 text-white px-6 py-3 rounded-full text-sm font-medium border-none focus:ring-2 focus:ring-red-300 focus:outline-none cursor-pointer hover:from-red-500 hover:to-red-600 transition-all duration-200"
                 >
                   <option value="all">🎪 All Events</option>
                   <option value="city_event">🏙️ City Events</option>
@@ -588,21 +588,25 @@ const Events: React.FC = () => {
 
                   {/* Action Buttons */}
                   <div className="flex gap-3">
-                    <Link to={`/events/${event._id}`} className="flex-1">
-                      <Button
-                        variant="outline"
-                        className="w-full border-2 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 font-semibold py-3 rounded-xl transition-all duration-200"
-                      >
-                        View Details
-                      </Button>
-                    </Link>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        toast({
+                          title: "Event Details",
+                          description: `${event.title} - ${event.description}`,
+                        });
+                      }}
+                      className="flex-1 border-2 border-foodtruck-teal/30 text-foodtruck-teal hover:bg-foodtruck-teal/10 hover:border-foodtruck-teal font-semibold py-3 rounded-xl transition-all duration-200"
+                    >
+                      View Details
+                    </Button>
 
                     {/* Participate Button for Owners */}
                     {user?.userType === 'owner' && event.eventType === 'city_event' && event.isRegistrationOpen && (
                       <Button
                         onClick={() => handleParticipate(event._id)}
                         disabled={loading}
-                        className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200"
+                        className="bg-gradient-to-r from-foodtruck-teal to-red-500 hover:from-red-500 hover:to-red-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200"
                       >
                         Join Event
                       </Button>
@@ -632,7 +636,7 @@ const Events: React.FC = () => {
               variant="outline"
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="px-6 py-3 rounded-xl border-2 border-gray-200 hover:border-red-300 hover:bg-red-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 rounded-xl border-2 border-gray-200 hover:border-foodtruck-teal hover:bg-foodtruck-teal/10 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Previous
@@ -658,8 +662,8 @@ const Events: React.FC = () => {
                     onClick={() => setCurrentPage(page)}
                     className={`w-12 h-12 rounded-xl font-semibold transition-all duration-200 ${
                       currentPage === page
-                        ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg'
-                        : 'border-2 border-gray-200 hover:border-red-300 hover:bg-red-50'
+                        ? 'bg-gradient-to-r from-foodtruck-teal to-red-500 text-white shadow-lg'
+                        : 'border-2 border-gray-200 hover:border-foodtruck-teal hover:bg-foodtruck-teal/10'
                     }`}
                   >
                     {page}
@@ -672,7 +676,7 @@ const Events: React.FC = () => {
               variant="outline"
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
-              className="px-6 py-3 rounded-xl border-2 border-gray-200 hover:border-red-300 hover:bg-red-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 rounded-xl border-2 border-gray-200 hover:border-foodtruck-teal hover:bg-foodtruck-teal/10 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next
               <ArrowRight className="w-4 h-4 ml-2" />
@@ -684,8 +688,8 @@ const Events: React.FC = () => {
         {filteredEvents.length === 0 && !loading && (
           <div className="text-center py-20">
             <div className="max-w-md mx-auto">
-              <div className="w-24 h-24 bg-gradient-to-r from-red-100 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Calendar className="w-12 h-12 text-red-500" />
+              <div className="w-24 h-24 bg-gradient-to-r from-foodtruck-teal/20 to-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Calendar className="w-12 h-12 text-foodtruck-teal" />
               </div>
 
               <h3 className="text-2xl font-bold text-gray-900 mb-4">No events found</h3>
@@ -701,14 +705,14 @@ const Events: React.FC = () => {
                     setSelectedEventType('all');
                     setSelectedStatus('published');
                   }}
-                  className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200"
+                  className="bg-gradient-to-r from-foodtruck-teal to-red-500 hover:from-red-500 hover:to-red-600 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200"
                 >
                   Clear All Filters
                 </Button>
 
                 <p className="text-sm text-gray-500">
                   Food truck owners can create events from their
-                  <Link to="/owner-dashboard" className="text-red-500 hover:text-red-600 font-medium ml-1">
+                  <Link to="/owner-dashboard" className="text-foodtruck-teal hover:text-red-500 font-medium ml-1">
                     dashboard
                   </Link>
                 </p>
@@ -719,13 +723,13 @@ const Events: React.FC = () => {
 
         {/* Call to Action Section */}
         {!loading && filteredEvents.length > 0 && (
-          <div className="mt-20 bg-gradient-to-r from-red-500 to-orange-500 rounded-3xl p-12 text-center text-white">
+          <div className="mt-20 bg-gradient-to-r from-foodtruck-teal to-red-400 rounded-3xl p-12 text-center text-white">
             <h3 className="text-3xl font-bold mb-4">Don't see your event?</h3>
             <p className="text-xl mb-8 opacity-90">
               Food truck owners can create and promote their own events
             </p>
-            <Link to="/owner-dashboard">
-              <Button className="bg-white text-red-600 hover:bg-gray-100 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200">
+            <Link to="/owner/dashboard">
+              <Button className="bg-white text-foodtruck-teal hover:bg-gray-100 hover:text-red-500 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200">
                 Create Your Event
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>

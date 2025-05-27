@@ -148,7 +148,11 @@ const UpcomingEvents = () => {
           ) : (
             events.map((event) => (
             <div key={event._id} className="flex-shrink-0 w-[320px]">
-              <Link to={`/events/${event._id}`} className="block">
+              <div className="block cursor-pointer" onClick={() => {
+                // For now, just show a toast with event details
+                // Later this can be replaced with proper event detail page
+                console.log('Event clicked:', event);
+              }}>
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                   <div className="relative">
                     <img
@@ -208,7 +212,7 @@ const UpcomingEvents = () => {
                     </div>
                   </div>
                 </div>
-              </Link>
+              </div>
             </div>
           )))}
         </div>

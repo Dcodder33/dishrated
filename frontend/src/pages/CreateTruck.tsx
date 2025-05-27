@@ -7,11 +7,12 @@ import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import { Label } from '../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { ArrowLeft, Truck, MapPin, DollarSign, Tag } from 'lucide-react';
+import { ArrowLeft, Truck, DollarSign, Tag } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
 import { apiService } from '../services/api';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import AutoLocationPicker from '../components/AutoLocationPicker';
 
 interface TruckFormData {
   name: string;
@@ -107,10 +108,17 @@ const CreateTruck: React.FC = () => {
     }));
   };
 
+  const handleLocationSelect = (location: any) => {
+    setFormData(prev => ({
+      ...prev,
+      location
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.name || !formData.description || !formData.cuisine || !formData.location.address) {
+
+    if (!formData.name || !formData.description || !formData.cuisine) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -119,11 +127,20 @@ const CreateTruck: React.FC = () => {
       return;
     }
 
+    if (!formData.location.address || formData.location.coordinates.latitude === 0) {
+      toast({
+        title: "Error",
+        description: "Please select a location for your food truck",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setLoading(true);
-      
+
       const response = await apiService.post('/owner/trucks', formData);
-      
+
       if (response.success) {
         toast({
           title: "Success",
@@ -149,19 +166,19 @@ const CreateTruck: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      
+
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             onClick={() => navigate('/owner/dashboard')}
             className="mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
           </Button>
-          
+
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Create New Food Truck</h1>
           <p className="text-gray-600">Add your food truck to start serving customers</p>
         </div>
@@ -177,7 +194,7 @@ const CreateTruck: React.FC = () => {
               Fill in the information about your food truck
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Basic Information */}
@@ -229,48 +246,10 @@ const CreateTruck: React.FC = () => {
               </div>
 
               {/* Location */}
-              <div className="space-y-4">
-                <div className="flex items-center mb-2">
-                  <MapPin className="h-4 w-4 mr-2" />
-                  <Label className="text-base font-medium">Location</Label>
-                </div>
-                
-                <div>
-                  <Label htmlFor="address">Address *</Label>
-                  <Input
-                    id="address"
-                    value={formData.location.address}
-                    onChange={(e) => handleInputChange('location.address', e.target.value)}
-                    placeholder="e.g., 123 Main Street, Downtown"
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="latitude">Latitude</Label>
-                    <Input
-                      id="latitude"
-                      type="number"
-                      step="any"
-                      value={formData.location.coordinates.latitude}
-                      onChange={(e) => handleInputChange('coordinates.latitude', e.target.value)}
-                      placeholder="20.2961"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="longitude">Longitude</Label>
-                    <Input
-                      id="longitude"
-                      type="number"
-                      step="any"
-                      value={formData.location.coordinates.longitude}
-                      onChange={(e) => handleInputChange('coordinates.longitude', e.target.value)}
-                      placeholder="85.8245"
-                    />
-                  </div>
-                </div>
-              </div>
+              <AutoLocationPicker
+                onLocationSelect={handleLocationSelect}
+                initialLocation={formData.location.address ? formData.location : undefined}
+              />
 
               {/* Price Range */}
               <div>
@@ -296,7 +275,7 @@ const CreateTruck: React.FC = () => {
                   <Tag className="h-4 w-4 mr-2" />
                   <Label className="text-base font-medium">Tags</Label>
                 </div>
-                
+
                 <div className="flex gap-2 mb-2">
                   <Input
                     value={tagInput}
@@ -308,7 +287,7 @@ const CreateTruck: React.FC = () => {
                     Add
                   </Button>
                 </div>
-                
+
                 {formData.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {formData.tags.map((tag, index) => (

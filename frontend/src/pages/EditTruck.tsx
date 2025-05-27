@@ -13,9 +13,7 @@ import TruckImageManager from '../components/TruckImageManager';
 import {
   ArrowLeft,
   Truck,
-  MapPin,
   DollarSign,
-  Camera,
   Plus,
   Edit,
   Trash2,
@@ -181,7 +179,8 @@ const EditTruck: React.FC = () => {
       const response = await apiService.get(`/owner/trucks/${id}`);
 
       if (response.success && response.data) {
-        setTruckData(response.data as TruckData);
+        const truckDataFromAPI = response.data as TruckData;
+        setTruckData(truckDataFromAPI);
       } else {
         throw new Error(response.message || 'Failed to fetch truck data');
       }
@@ -221,32 +220,7 @@ const EditTruck: React.FC = () => {
     }
   };
 
-  const handleLocationUpdate = async () => {
-    if (!truckData) return;
 
-    try {
-      setSaving(true);
-      const response = await apiService.put(`/owner/trucks/${id}/location`, {
-        address: truckData.location.address,
-        coordinates: truckData.location.coordinates
-      });
-
-      if (response.success) {
-        toast({
-          title: "Success",
-          description: "Location updated successfully",
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update location",
-        variant: "destructive",
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const addTag = () => {
     if (!truckData || !tagInput.trim()) return;
@@ -401,6 +375,8 @@ const EditTruck: React.FC = () => {
     }
   };
 
+
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -454,12 +430,11 @@ const EditTruck: React.FC = () => {
         </div>
 
         <Tabs defaultValue="menu" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="menu">Menu</TabsTrigger>
             <TabsTrigger value="images">Images</TabsTrigger>
             <TabsTrigger value="schedule">Schedule</TabsTrigger>
             <TabsTrigger value="about">About</TabsTrigger>
-            <TabsTrigger value="location">Location</TabsTrigger>
             <TabsTrigger value="basic">Basic Info</TabsTrigger>
           </TabsList>
 
@@ -481,9 +456,10 @@ const EditTruck: React.FC = () => {
                     <Label htmlFor="name">Truck Name</Label>
                     <Input
                       id="name"
-                      value={truckData.name}
+                      value={truckData.name || ''}
                       onChange={(e) => setTruckData(prev => prev ? { ...prev, name: e.target.value } : null)}
                       onBlur={() => handleBasicInfoUpdate('name', truckData.name)}
+                      placeholder="Enter your truck name"
                     />
                   </div>
 
@@ -491,23 +467,24 @@ const EditTruck: React.FC = () => {
                     <Label htmlFor="cuisine">Cuisine Type</Label>
                     <Input
                       id="cuisine"
-                      value={truckData.cuisine}
+                      value={truckData.cuisine || ''}
                       onChange={(e) => setTruckData(prev => prev ? { ...prev, cuisine: e.target.value } : null)}
                       onBlur={() => handleBasicInfoUpdate('cuisine', truckData.cuisine)}
+                      placeholder="e.g., Indian, Italian, Mexican"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="priceRange">Price Range</Label>
                     <Select
-                      value={truckData.priceRange}
+                      value={truckData.priceRange || ''}
                       onValueChange={(value) => {
                         setTruckData(prev => prev ? { ...prev, priceRange: value as any } : null);
                         handleBasicInfoUpdate('priceRange', value);
                       }}
                     >
                       <SelectTrigger>
-                        <SelectValue />
+                        <SelectValue placeholder="Select price range" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="budget">Budget (₹)</SelectItem>
@@ -520,14 +497,14 @@ const EditTruck: React.FC = () => {
                   <div className="space-y-2">
                     <Label htmlFor="status">Status</Label>
                     <Select
-                      value={truckData.status}
+                      value={truckData.status || ''}
                       onValueChange={(value) => {
                         setTruckData(prev => prev ? { ...prev, status: value } : null);
                         handleBasicInfoUpdate('status', value);
                       }}
                     >
                       <SelectTrigger>
-                        <SelectValue />
+                        <SelectValue placeholder="Select status" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="open">Open</SelectItem>
@@ -542,10 +519,11 @@ const EditTruck: React.FC = () => {
                   <Label htmlFor="description">Description</Label>
                   <Textarea
                     id="description"
-                    value={truckData.description}
+                    value={truckData.description || ''}
                     onChange={(e) => setTruckData(prev => prev ? { ...prev, description: e.target.value } : null)}
                     onBlur={() => handleBasicInfoUpdate('description', truckData.description)}
                     rows={4}
+                    placeholder="Tell customers about your food truck, specialties, and what makes you unique..."
                   />
                 </div>
 
@@ -553,7 +531,7 @@ const EditTruck: React.FC = () => {
                   <Label htmlFor="waitTime">Wait Time</Label>
                   <Input
                     id="waitTime"
-                    value={truckData.waitTime}
+                    value={truckData.waitTime || ''}
                     onChange={(e) => setTruckData(prev => prev ? { ...prev, waitTime: e.target.value } : null)}
                     onBlur={() => handleBasicInfoUpdate('waitTime', truckData.waitTime)}
                     placeholder="e.g., 10-15 minutes"
@@ -583,7 +561,7 @@ const EditTruck: React.FC = () => {
                     <Input
                       value={tagInput}
                       onChange={(e) => setTagInput(e.target.value)}
-                      placeholder="Add a tag"
+                      placeholder="Add a tag (e.g., spicy, vegetarian, halal)"
                       onKeyDown={(e) => e.key === 'Enter' && addTag()}
                     />
                     <Button onClick={addTag} size="sm">
@@ -965,102 +943,7 @@ const EditTruck: React.FC = () => {
             </Card>
           </TabsContent>
 
-          {/* Location Tab */}
-          <TabsContent value="location">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <MapPin className="h-5 w-5 mr-2" />
-                  Location Management
-                </CardTitle>
-                <CardDescription>
-                  Update your food truck's location and coordinates
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="address">Address</Label>
-                  <Textarea
-                    id="address"
-                    value={truckData.location?.address || ''}
-                    onChange={(e) => setTruckData(prev => prev ? {
-                      ...prev,
-                      location: { ...prev.location, address: e.target.value }
-                    } : null)}
-                    placeholder="Enter your current address"
-                    rows={3}
-                  />
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="latitude">Latitude</Label>
-                    <Input
-                      id="latitude"
-                      type="number"
-                      step="any"
-                      value={truckData.location?.coordinates?.latitude || ''}
-                      onChange={(e) => setTruckData(prev => prev ? {
-                        ...prev,
-                        location: {
-                          ...prev.location,
-                          coordinates: {
-                            ...prev.location?.coordinates,
-                            latitude: Number(e.target.value)
-                          }
-                        }
-                      } : null)}
-                      placeholder="e.g., 20.3538431"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="longitude">Longitude</Label>
-                    <Input
-                      id="longitude"
-                      type="number"
-                      step="any"
-                      value={truckData.location?.coordinates?.longitude || ''}
-                      onChange={(e) => setTruckData(prev => prev ? {
-                        ...prev,
-                        location: {
-                          ...prev.location,
-                          coordinates: {
-                            ...prev.location?.coordinates,
-                            longitude: Number(e.target.value)
-                          }
-                        }
-                      } : null)}
-                      placeholder="e.g., 85.8169059"
-                    />
-                  </div>
-                </div>
-
-                <Button onClick={handleLocationUpdate} disabled={saving}>
-                  {saving ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Updating...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4 mr-2" />
-                      Update Location
-                    </>
-                  )}
-                </Button>
-
-                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                  <h4 className="font-medium text-blue-900 mb-2">Location Tips</h4>
-                  <ul className="text-sm text-blue-800 space-y-1">
-                    <li>• Use GPS coordinates for precise location tracking</li>
-                    <li>• Update your location regularly to help customers find you</li>
-                    <li>• Make sure your address is clear and easy to understand</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           {/* Images Tab */}
           <TabsContent value="images">

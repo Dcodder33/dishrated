@@ -21,7 +21,10 @@ export const getEvents = asyncHandler(async (req: Request, res: Response) => {
   } = req.query;
 
   // Build query
-  let query: any = { status };
+  let query: any = {
+    status,
+    approvalStatus: 'approved' // Only show approved events to public
+  };
 
   if (search) {
     query.$text = { $search: search as string };
@@ -130,10 +133,7 @@ export const createEvent = asyncHandler(async (req: Request, res: Response) => {
     throw createError('Only admins and food truck owners can create events', 403);
   }
 
-  // If owner, they can only create truck_event or offer types
-  if (req.user!.userType === 'owner' && eventType === 'city_event') {
-    throw createError('Food truck owners cannot create city events', 403);
-  }
+  // Note: Food truck owners can now create city events, but they require admin approval
 
   const eventData = {
     title,
@@ -328,7 +328,8 @@ export const getUpcomingEvents = asyncHandler(async (req: Request, res: Response
 
   const events = await Event.find({
     date: { $gte: new Date() },
-    status: 'published'
+    status: 'published',
+    approvalStatus: 'approved'
   })
     .populate('organizer', 'name email userType')
     .populate('participatingTrucks.truck', 'name image location')
@@ -356,6 +357,14 @@ export const getEventsByOrganizer = asyncHandler(async (req: Request, res: Respo
 
   const filter: any = { organizer: organizerId };
   if (status) filter.status = status;
+
+  // If the requester is not the organizer or an admin, only show approved events
+  if (req.user && (req.user._id.toString() === organizerId || req.user.userType === 'admin')) {
+    // Show all events (including pending) to the organizer or admin
+  } else {
+    // Only show approved events to others
+    filter.approvalStatus = 'approved';
+  }
 
   const events = await Event.find(filter)
     .populate('organizer', 'name email userType')

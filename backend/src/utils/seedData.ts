@@ -74,10 +74,10 @@ const seedData = async () => {
         rating: 4.8,
         reviewCount: 132,
         location: {
-          address: 'KIIT Campus, Patia, Bhubaneswar, Odisha',
+          address: 'University Campus Area, Food Court Zone',
           coordinates: {
-            latitude: 20.3538431,
-            longitude: 85.8169059
+            latitude: 40.7128,
+            longitude: -74.0060
           }
         },
         status: 'open',
@@ -127,10 +127,10 @@ const seedData = async () => {
         rating: 4.5,
         reviewCount: 89,
         location: {
-          address: 'Saheed Nagar, Bhubaneswar, Odisha',
+          address: 'Downtown Business District, Food Plaza',
           coordinates: {
-            latitude: 20.3019,
-            longitude: 85.8449
+            latitude: 40.7589,
+            longitude: -73.9851
           }
         },
         status: 'open',
@@ -180,10 +180,10 @@ const seedData = async () => {
         rating: 4.7,
         reviewCount: 76,
         location: {
-          address: 'Old Town, Bhubaneswar, Odisha',
+          address: 'Historic District, Cultural Quarter',
           coordinates: {
-            latitude: 20.2379,
-            longitude: 85.8413
+            latitude: 40.7505,
+            longitude: -73.9934
           }
         },
         status: 'open',
@@ -248,10 +248,10 @@ const seedData = async () => {
         image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
         date: futureDate1,
         location: {
-          address: 'IDCO Exhibition Ground, Bhubaneswar',
+          address: 'Central Exhibition Center, Downtown',
           coordinates: {
-            latitude: 20.2961,
-            longitude: 85.8245
+            latitude: 40.7282,
+            longitude: -73.9942
           }
         },
         eventType: 'city_event',
@@ -272,10 +272,10 @@ const seedData = async () => {
         image: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
         date: futureDate2,
         location: {
-          address: 'Kalinga Stadium Area, Bhubaneswar',
+          address: 'Sports Complex Area, Midtown',
           coordinates: {
-            latitude: 20.3019,
-            longitude: 85.8449
+            latitude: 40.7614,
+            longitude: -73.9776
           }
         },
         eventType: 'offer',
@@ -291,15 +291,15 @@ const seedData = async () => {
         ]
       },
       {
-        title: 'KIIT FEST 8.0',
+        title: 'University Food Festival',
         description: 'Annual college festival with food trucks, music, and entertainment.',
         image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
         date: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000), // 45 days from now
         location: {
-          address: 'KIIT Campus, Patia, Bhubaneswar',
+          address: 'University Campus, Student Center',
           coordinates: {
-            latitude: 20.3538431,
-            longitude: 85.8169059
+            latitude: 40.7831,
+            longitude: -73.9712
           }
         },
         eventType: 'city_event',

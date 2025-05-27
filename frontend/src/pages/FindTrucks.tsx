@@ -165,15 +165,10 @@ const FindTrucks = () => {
           console.error('Geolocation error:', error);
           toast({
             title: "Location Error",
-            description: "Could not get your location. Using default location.",
+            description: "Could not get your location. Please enable location permissions or search for a location manually.",
             variant: "destructive",
           });
-          // Use default location (KIIT Campus)
-          setUserLocation({
-            lat: 20.3538431,
-            lng: 85.8169059,
-            address: 'KIIT Campus, Bhubaneswar'
-          });
+          setUserLocation(null);
         },
         {
           enableHighAccuracy: true,
@@ -601,12 +596,22 @@ const FindTrucks = () => {
               <Card className="mb-6">
                 <CardContent className="p-0">
                   <div className="h-[400px] relative">
-                    <TruckMap
-                      trucks={filteredTrucks}
-                      center={userLocation ? [userLocation.lat, userLocation.lng] : undefined}
-                      height="400px"
-                      highlightedTruckId={selectedTruck}
-                    />
+                    {userLocation ? (
+                      <TruckMap
+                        trucks={filteredTrucks}
+                        center={[userLocation.lat, userLocation.lng]}
+                        height="400px"
+                        highlightedTruckId={selectedTruck}
+                      />
+                    ) : (
+                      <div className="h-full bg-gray-100 flex items-center justify-center">
+                        <div className="text-center">
+                          <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                          <p className="text-gray-600 mb-2">Location Required</p>
+                          <p className="text-sm text-gray-500">Please enable location access or search for a location to view the map</p>
+                        </div>
+                      </div>
+                    )}
                     {loading && (
                       <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
                         <div className="text-center">

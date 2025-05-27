@@ -10,6 +10,12 @@ export interface IUser extends Document {
   userType: 'user' | 'owner' | 'admin'; // Alias for role for consistency
   avatar?: string;
   phone?: string;
+  isActive: boolean;
+  banReason?: string;
+  bannedAt?: Date;
+  bannedBy?: any; // Admin User ID
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -117,6 +123,10 @@ export interface IEvent extends Document {
     currency: string;
   };
   status: 'draft' | 'published' | 'cancelled' | 'completed';
+  approvalStatus: 'pending' | 'approved' | 'rejected';
+  approvedBy?: any; // Admin User ID
+  approvedAt?: Date;
+  rejectionReason?: string;
   // Virtual properties
   participantCount: number;
   availableSpots?: number;
@@ -138,6 +148,26 @@ export interface IReview extends Document {
   comment: string;
   images?: string[];
   helpful: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Blog Types
+export interface IBlog extends Document {
+  _id: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string;
+  featuredImage?: string;
+  author: any; // User ID
+  category: string;
+  tags: string[];
+  status: 'draft' | 'published' | 'archived';
+  featured: boolean;
+  readTime: number; // in minutes
+  views: number;
+  publishedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }

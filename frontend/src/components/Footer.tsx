@@ -1,9 +1,31 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Mail, Phone, Instagram, Twitter, Facebook, Youtube } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const Footer = () => {
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setIsSubmitting(true);
+
+    // Simulate newsletter subscription
+    setTimeout(() => {
+      toast({
+        title: "Subscribed!",
+        description: "Thank you for subscribing to our newsletter.",
+      });
+      setEmail('');
+      setIsSubmitting(false);
+    }, 1000);
+  };
+
   return (
     <footer className="bg-foodtruck-teal text-white pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -22,18 +44,30 @@ const Footer = () => {
               Connecting food lovers with the best mobile eateries in your area. Discover unique flavors, track your favorites, and explore the vibrant world of street food.
             </p>
             <div className="flex space-x-4 pt-2">
-              <a href="#" className="text-white/80 hover:text-white transition-colors">
+              <button
+                onClick={() => toast({ title: "Coming Soon", description: "Social media links will be available soon!" })}
+                className="text-white/80 hover:text-white transition-colors"
+              >
                 <Instagram className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-white/80 hover:text-white transition-colors">
+              </button>
+              <button
+                onClick={() => toast({ title: "Coming Soon", description: "Social media links will be available soon!" })}
+                className="text-white/80 hover:text-white transition-colors"
+              >
                 <Twitter className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-white/80 hover:text-white transition-colors">
+              </button>
+              <button
+                onClick={() => toast({ title: "Coming Soon", description: "Social media links will be available soon!" })}
+                className="text-white/80 hover:text-white transition-colors"
+              >
                 <Facebook className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-white/80 hover:text-white transition-colors">
+              </button>
+              <button
+                onClick={() => toast({ title: "Coming Soon", description: "Social media links will be available soon!" })}
+                className="text-white/80 hover:text-white transition-colors"
+              >
                 <Youtube className="h-5 w-5" />
-              </a>
+              </button>
             </div>
           </div>
 
@@ -62,7 +96,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="text-white/80 hover:text-white transition-colors text-sm">
+                <Link to="/aboutus" className="text-white/80 hover:text-white transition-colors text-sm">
                   About Us
                 </Link>
               </li>
@@ -88,21 +122,6 @@ const Footer = () => {
                   Vendor Login
                 </Link>
               </li>
-              <li>
-                <Link to="/vendor-resources" className="text-white/80 hover:text-white transition-colors text-sm">
-                  Resources
-                </Link>
-              </li>
-              <li>
-                <Link to="/pricing" className="text-white/80 hover:text-white transition-colors text-sm">
-                  Pricing
-                </Link>
-              </li>
-              <li>
-                <Link to="/success-stories" className="text-white/80 hover:text-white transition-colors text-sm">
-                  Success Stories
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -112,19 +131,24 @@ const Footer = () => {
             <p className="text-sm text-white/80 mb-4">
               Subscribe to receive the latest food truck news, events, and exclusive offers.
             </p>
-            <form className="space-y-3">
+            <form onSubmit={handleNewsletterSubmit} className="space-y-3">
               <div className="relative">
                 <input
                   type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="Your email address"
-                  className="w-full px-4 py-2 rounded-lg text-foodtruck-slate bg-white/10 backdrop-blur-sm border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all placeholder:text-white/50"
+                  required
+                  disabled={isSubmitting}
+                  className="w-full px-4 py-2 rounded-lg text-foodtruck-slate bg-white/10 backdrop-blur-sm border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all placeholder:text-white/50 disabled:opacity-50"
                 />
               </div>
               <button
                 type="submit"
-                className="w-full px-4 py-2 bg-foodtruck-gold text-foodtruck-slate rounded-lg font-medium hover:bg-white hover:text-foodtruck-teal transition-colors button-pulse"
+                disabled={isSubmitting}
+                className="w-full px-4 py-2 bg-foodtruck-gold text-foodtruck-slate rounded-lg font-medium hover:bg-white hover:text-foodtruck-teal transition-colors button-pulse disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Subscribe
+                {isSubmitting ? 'Subscribing...' : 'Subscribe'}
               </button>
             </form>
           </div>
