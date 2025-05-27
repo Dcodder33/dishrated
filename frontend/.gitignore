@@ -36,3 +36,6 @@ coverage/
 
 # Optional npm cache directory
 .npm
+
+# TypeScript
+*.tsbuildinfo
