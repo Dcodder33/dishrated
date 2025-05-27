@@ -16,6 +16,11 @@ interface FoodTruckCardProps {
   featured?: boolean;
   waitTime?: string;
   className?: string;
+  owner?: {
+    name: string;
+    email?: string;
+  };
+  showOwner?: boolean;
 }
 
 const FoodTruckCard = ({
@@ -30,9 +35,11 @@ const FoodTruckCard = ({
   featured = false,
   waitTime,
   className,
+  owner,
+  showOwner = false,
 }: FoodTruckCardProps) => {
   return (
-    <div 
+    <div
       className={cn(
         "relative overflow-hidden rounded-xl transition-all duration-300",
         "hover:shadow-xl hover:-translate-y-1",
@@ -47,10 +54,10 @@ const FoodTruckCard = ({
           </span>
         </div>
       )}
-      
+
       <div className="relative h-48 overflow-hidden group">
-        <img 
-          src={image} 
+        <img
+          src={image}
           alt={name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
@@ -58,7 +65,7 @@ const FoodTruckCard = ({
         <button className="absolute top-3 right-3 p-1.5 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-colors duration-300 group">
           <Heart className="h-5 w-5 text-foodtruck-teal group-hover:text-foodtruck-gold transition-colors duration-300" />
         </button>
-        
+
         <div className="absolute bottom-0 left-0 right-0 p-4">
           <div className="flex justify-between items-end">
             <div>
@@ -74,14 +81,20 @@ const FoodTruckCard = ({
           </div>
         </div>
       </div>
-      
+
       <div className="p-4 border-t-2 border-transparent group-hover:border-foodtruck-gold/30 transition-colors duration-300">
         <Link to={`/trucks/${id}`}>
           <h3 className="font-serif text-lg font-medium text-foodtruck-slate mb-2 hover:text-foodtruck-teal transition-colors gold-underline">
             {name}
           </h3>
         </Link>
-        
+
+        {showOwner && owner && (
+          <p className="text-sm text-foodtruck-slate/70 mb-2">
+            by {owner.name}
+          </p>
+        )}
+
         <div className="flex items-center justify-between text-sm mb-3">
           {status === 'open' && (
             <span className="flex items-center text-green-600">
@@ -101,7 +114,7 @@ const FoodTruckCard = ({
               Opening Soon
             </span>
           )}
-          
+
           {waitTime && (
             <span className="flex items-center text-foodtruck-slate text-xs">
               <Clock className="h-3.5 w-3.5 text-foodtruck-slate/70 mr-1" />
@@ -109,7 +122,7 @@ const FoodTruckCard = ({
             </span>
           )}
         </div>
-        
+
         <div className="flex items-center justify-between text-sm">
           {distance && (
             <span className="flex items-center text-foodtruck-slate/80">
@@ -117,7 +130,7 @@ const FoodTruckCard = ({
               {distance} away
             </span>
           )}
-          
+
           <Link to={`/trucks/${id}`} className="text-foodtruck-teal font-medium hover:text-foodtruck-gold transition-colors duration-300 text-sm">
             View Details
           </Link>

@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import FoodTruckCard from './FoodTruckCard';
 import { cn } from '@/lib/utils';
 import { toast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { foodTruckService } from '../services';
+import { FoodTruck } from '../types';
+import { Loader2 } from 'lucide-react';
 
 // Mock data for trending food trucks with Indian and Chinese names and matching images
 const trendingTrucks = [
@@ -73,21 +76,44 @@ const filterCategories = [
 
 const TrendingTrucks = () => {
   const [activeFilter, setActiveFilter] = useState('all');
+  const [trucks, setTrucks] = useState<FoodTruck[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  
+
+  useEffect(() => {
+    const fetchTrendingTrucks = async () => {
+      try {
+        setLoading(true);
+        const trendingTrucks = await foodTruckService.getTrendingTrucks(6);
+        setTrucks(trendingTrucks);
+      } catch (error) {
+        console.error('Error fetching trending trucks:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load trending food trucks. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTrendingTrucks();
+  }, []);
+
   const handleFilterClick = (filterId: string) => {
     setActiveFilter(filterId);
-    
+
     toast({
       title: "Filter Applied",
       description: `Showing ${filterId === 'all' ? 'all food trucks' : filterId + ' food trucks'}`,
     });
   };
-  
+
   const handleExploreAll = () => {
     navigate('/find-trucks');
   };
-  
+
   return (
     <section className="py-16 bg-yellow-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -96,7 +122,7 @@ const TrendingTrucks = () => {
           <p className="max-w-2xl mx-auto text-foodtruck-slate/80">
             Discover the most popular and highly-rated food trucks in your area.
           </p>
-          
+
           {/* Filter tabs */}
           <div className="flex flex-wrap justify-center gap-2 mt-8">
             {filterCategories.map((category) => (
@@ -115,30 +141,42 @@ const TrendingTrucks = () => {
             ))}
           </div>
         </div>
-        
+
         {/* Grid of food truck cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {trendingTrucks.map((truck, index) => (
-            <div 
-              key={truck.id} 
-              className="opacity-0 animate-fade-in"
-              style={{ animationDelay: `${index * 0.15}s`, animationFillMode: 'forwards' }}
-            >
-              <FoodTruckCard
-                id={truck.id}
-                name={truck.name}
-                image={truck.image}
-                cuisine={truck.cuisine}
-                rating={truck.rating}
-                reviewCount={truck.reviewCount}
-                featured={truck.featured}
-              />
-            </div>
-          ))}
-        </div>
-        
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="h-12 w-12 animate-spin text-foodtruck-teal" />
+          </div>
+        ) : trucks.length === 0 ? (
+          <div className="text-center py-16">
+            <p className="text-gray-500">No trending trucks found.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {trucks.map((truck, index) => (
+              <div
+                key={truck._id}
+                className="opacity-0 animate-fade-in"
+                style={{ animationDelay: `${index * 0.15}s`, animationFillMode: 'forwards' }}
+              >
+                <FoodTruckCard
+                  id={truck._id}
+                  name={truck.name}
+                  image={truck.image}
+                  cuisine={truck.cuisine}
+                  rating={truck.rating}
+                  reviewCount={truck.reviewCount}
+                  featured={truck.featured}
+                  owner={truck.owner}
+                  showOwner={true}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="mt-12 text-center">
-          <button 
+          <button
             onClick={handleExploreAll}
             className="inline-flex items-center justify-center px-6 py-3 rounded-full border border-foodtruck-teal text-foodtruck-teal font-medium hover:bg-foodtruck-teal hover:text-white transition-colors group relative overflow-hidden"
           >
