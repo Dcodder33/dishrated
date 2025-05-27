@@ -15,6 +15,16 @@ yarn-error.log*
 dist/
 build/
 
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
 # Logs
 logs
 *.log
@@ -25,7 +35,7 @@ pids
 *.seed
 *.pid.lock
 
-# Coverage directory
+# Coverage directory used by tools like istanbul
 coverage/
 
 # Dependency directories
@@ -42,13 +52,3 @@ jspm_packages/
 
 # Yarn Integrity file
 .yarn-integrity
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
