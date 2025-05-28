@@ -64,62 +64,7 @@ A comprehensive food truck discovery and review platform that helps users find t
 
 ---
 
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js (v16 or higher)
-- MongoDB (local or Atlas)
-- Git
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/dishrated.git
-   cd dishrated
-   ```
-
-2. **Backend Setup**
-   ```bash
-   cd backend
-   npm install
-
-   # Create .env file
-   cp .env.example .env
-   # Edit .env with your configuration
-
-   # Start development server
-   npm run dev
-   ```
-
-3. **Frontend Setup**
-   ```bash
-   cd frontend
-   npm install
-
-   # Start development server
-   npm run dev
-   ```
-
-4. **Environment Variables**
-
-   **Backend (.env)**
-   ```env
-   NODE_ENV=development
-   PORT=5000
-   MONGODB_URI=your_mongodb_connection_string
-   JWT_SECRET=your_jwt_secret_key
-   JWT_EXPIRE=30d
-   ```
-
-   **Frontend (.env)**
-   ```env
-   VITE_API_URL=http://localhost:5000/api
-   ```
-
----
-
-## 📱 Screenshots
+##  Screenshots
 
 ### Homepage
 *Clean and intuitive homepage with gradient design*
@@ -160,21 +105,6 @@ A comprehensive food truck discovery and review platform that helps users find t
 
 ---
 
-## 🔧 API Documentation
-
-The backend provides a comprehensive REST API. Key endpoints include:
-
-- **Authentication**: `/api/auth/*`
-- **Food Trucks**: `/api/trucks/*`
-- **Reviews**: `/api/reviews/*`
-- **Events**: `/api/events/*`
-- **User Management**: `/api/admin/*`
-- **Owner Operations**: `/api/owner/*`
-
-For detailed API documentation, visit the `/api/health` endpoint when running the backend.
-
----
-
 ## 🤝 Contributing
 
 We welcome contributions! Please follow these steps:
@@ -193,14 +123,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 👥 Team
-
-- **Developer**: Full-Stack Developer
-- **Project Type**: Full-Stack Web Application
-- **Status**: Live and Deployed
-
----
-
 ## 🌐 Live Demo
 
 **🔗 [Visit DishRated](https://dishrated1.netlify.app/)**
@@ -211,15 +133,6 @@ Experience the full functionality of DishRated with our live demo. Create an acc
 - **User**: `john@example.com` / `password123`
 - **Owner**: `jane@example.com` / `password123`
 - **Admin**: `admin@dishrated.com` / `admin123`
-
----
-
-## 📞 Support
-
-If you have any questions or need support, please:
-- Open an issue on GitHub
-- Contact us through the website
-- Email: support@dishrated.com
 
 ---
 
