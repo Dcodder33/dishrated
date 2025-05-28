@@ -67,13 +67,15 @@ A comprehensive food truck discovery and review platform that helps users find t
 ##  Screenshots
 
 ### Homepage
-*Clean and intuitive homepage with gradient design*
+<img width="665" alt="image" src="https://github.com/user-attachments/assets/8b3e5e2b-9cc0-4f9d-80c4-8baca44e229e" />
 
 ### Food Truck Discovery
-*Advanced search and filtering capabilities*
+<img width="662" alt="image" src="https://github.com/user-attachments/assets/7ed211d3-8356-4ba9-8512-4e477757f00f" />
+
 
 ### Owner Dashboard
-*Comprehensive management tools for food truck owners*
+<img width="670" alt="image" src="https://github.com/user-attachments/assets/023b906d-1f1e-4ac4-ac6e-9619140d6832" />
+
 
 ---
 
