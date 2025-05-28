@@ -150,16 +150,23 @@ export const updateEventSchema = Joi.object({
 
 // Review validation schemas
 export const createReviewSchema = Joi.object({
-  truck: Joi.string().required(),
-  rating: Joi.number().min(1).max(5).required(),
-  comment: Joi.string().max(1000).required(),
-  images: Joi.array().items(Joi.string().uri()).optional()
+  truckId: Joi.string().required(),
+  dishId: Joi.string().optional(), // For dish-specific reviews
+  rating: Joi.number().integer().min(1).max(5).required(),
+  title: Joi.string().min(2).max(100).required(),
+  comment: Joi.string().min(10).max(1000).required(),
+  images: Joi.array().items(Joi.string().uri()).max(5).optional()
 });
 
 export const updateReviewSchema = Joi.object({
-  rating: Joi.number().min(1).max(5).optional(),
-  comment: Joi.string().max(1000).optional(),
-  images: Joi.array().items(Joi.string().uri()).optional()
+  rating: Joi.number().integer().min(1).max(5).optional(),
+  title: Joi.string().min(2).max(100).optional(),
+  comment: Joi.string().min(10).max(1000).optional(),
+  images: Joi.array().items(Joi.string().uri()).max(5).optional()
+});
+
+export const respondToReviewSchema = Joi.object({
+  message: Joi.string().min(10).max(500).required()
 });
 
 // Menu item validation schemas
