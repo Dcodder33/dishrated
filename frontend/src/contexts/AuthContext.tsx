@@ -70,6 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         title: "Login Successful",
         description: `Welcome back, ${authResponse.user.name}!`,
       });
+      return authResponse; // Return the response for role-based redirection
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Login failed';
       toast({

@@ -25,6 +25,7 @@ import { foodTruckService } from '../services';
 import { FoodTruck } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../hooks/use-toast';
+import { ReviewList } from '../components/ReviewList';
 
 const TruckDetails = () => {
   const { id } = useParams();
@@ -174,7 +175,16 @@ const TruckDetails = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-yellow-50"> {/* Add bg-yellow-50 for light yellow background */}
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-white to-blue-50 relative">
+      {/* Background Design Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-32 h-32 bg-teal-200/30 rounded-full blur-xl"></div>
+        <div className="absolute top-40 right-20 w-48 h-48 bg-yellow-200/40 rounded-full blur-2xl"></div>
+        <div className="absolute bottom-32 left-1/4 w-40 h-40 bg-blue-200/30 rounded-full blur-xl"></div>
+        <div className="absolute bottom-20 right-10 w-24 h-24 bg-teal-300/25 rounded-full blur-lg"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-teal-200/20 to-yellow-200/20 rounded-full blur-3xl"></div>
+      </div>
+
       <Navbar />
 
       <main className="flex-grow pt-20 pb-16">
@@ -367,10 +377,12 @@ const TruckDetails = () => {
 
                 {activeTab === 'reviews' && (
                   <div>
-                    <h2 className="font-serif text-2xl font-bold text-foodtruck-slate mb-6">Reviews</h2>
-                    <p className="text-foodtruck-slate/80">
-                      This would contain user reviews and ratings in a real implementation.
-                    </p>
+                    <ReviewList
+                      truckId={id!}
+                      truckName={truckData.name}
+                      isOwner={isOwner}
+                      showWriteReview={true}
+                    />
                   </div>
                 )}
 
@@ -459,7 +471,7 @@ const TruckDetails = () => {
 
             {/* Sidebar */}
             <div className="lg:w-1/3">
-              <div className="bg-yellow-100 rounded-xl shadow-md p-6 sticky top-24">
+              <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-md p-6 sticky top-24 border border-white/20">
                 <h3 className="font-medium text-lg text-foodtruck-slate mb-4">Current Location</h3>
 
                 <div className="bg-foodtruck-lightgray rounded-lg p-4 mb-6">

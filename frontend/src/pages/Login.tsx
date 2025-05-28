@@ -6,7 +6,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Alert, AlertDescription } from '../components/ui/alert';
-import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Eye, EyeOff, User, Truck, Crown } from 'lucide-react';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -27,8 +27,16 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await login({ email, password });
-      navigate(from, { replace: true });
+      const result = await login({ email, password });
+
+      // Role-based redirection
+      if (result?.user?.role === 'admin') {
+        navigate('/admin/dashboard', { replace: true });
+      } else if (result?.user?.role === 'owner') {
+        navigate('/owner/dashboard', { replace: true });
+      } else {
+        navigate(from, { replace: true });
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
@@ -47,8 +55,16 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await login(demoCredentials[role]);
-      navigate(from, { replace: true });
+      const result = await login(demoCredentials[role]);
+
+      // Role-based redirection for demo login
+      if (role === 'admin') {
+        navigate('/admin/dashboard', { replace: true });
+      } else if (role === 'owner') {
+        navigate('/owner/dashboard', { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Demo login failed');
     } finally {
@@ -64,6 +80,9 @@ const Login: React.FC = () => {
             Sign in to DishRated
           </h2>
           <p className="mt-2 text-sm text-gray-600">
+            Access your account as a customer, food truck owner, or admin
+          </p>
+          <p className="mt-1 text-sm text-gray-600">
             Or{' '}
             <Link
               to="/register"
@@ -78,7 +97,7 @@ const Login: React.FC = () => {
           <CardHeader>
             <CardTitle>Welcome back</CardTitle>
             <CardDescription>
-              Enter your credentials to access your account
+              Enter your credentials to access your account. You'll be automatically redirected based on your account type.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -165,30 +184,33 @@ const Login: React.FC = () => {
                 </div>
               </div>
 
-              <div className="mt-6 grid grid-cols-3 gap-3">
+              <div className="mt-6 space-y-3">
                 <Button
                   variant="outline"
-                  size="sm"
+                  className="w-full justify-start"
                   onClick={() => handleDemoLogin('user')}
                   disabled={isLoading}
                 >
-                  User Demo
+                  <User className="mr-2 h-4 w-4" />
+                  Demo as Customer
                 </Button>
                 <Button
                   variant="outline"
-                  size="sm"
+                  className="w-full justify-start"
                   onClick={() => handleDemoLogin('owner')}
                   disabled={isLoading}
                 >
-                  Owner Demo
+                  <Truck className="mr-2 h-4 w-4" />
+                  Demo as Food Truck Owner
                 </Button>
                 <Button
                   variant="outline"
-                  size="sm"
+                  className="w-full justify-start"
                   onClick={() => handleDemoLogin('admin')}
                   disabled={isLoading}
                 >
-                  Admin Demo
+                  <Crown className="mr-2 h-4 w-4" />
+                  Demo as Admin
                 </Button>
               </div>
             </div>

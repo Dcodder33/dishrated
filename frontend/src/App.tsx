@@ -18,13 +18,12 @@ import CreateTruck from "./pages/CreateTruck";
 import EditTruck from "./pages/EditTruck";
 import LiveLocation from "./pages/LiveLocation";
 import TruckLocationUpdate from "./pages/TruckLocationUpdate";
-import NotFound from "./pages/NotFound";
+import ComingSoon from "./pages/ComingSoon";
 import { Blog } from "./pages/Blog";
 import AboutUs from "./pages/AboutUs";
 import Contact from "./pages/Contact";
 import Sustainability from "./pages/Sustainability";
 import OwnerSignup from "./pages/OwnerSignup";
-import VendorLogin from "./pages/VendorLogin";
 import VendorResources from "./pages/VendorResources";
 import Pricing from "./pages/Pricing";
 import SuccessStories from "./pages/SuccessStories";
@@ -78,7 +77,7 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/owner-signup" element={<OwnerSignup />} />
             <Route path="/vendor-signup" element={<OwnerSignup />} />
-            <Route path="/vendor-login" element={<VendorLogin />} />
+            <Route path="/vendor-login" element={<Navigate to="/login" replace />} />
             <Route path="/vendor-resources" element={<VendorResources />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/success-stories" element={<SuccessStories />} />
@@ -103,7 +102,7 @@ const App = () => (
             <Route path="/trucks/:id/edit" element={<EditTruck />} />
             <Route path="/trucks/:id/location" element={<LiveLocation />} />
             <Route path="/trucks/:truckId/update-location" element={<TruckLocationUpdate />} />
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<ComingSoon />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>

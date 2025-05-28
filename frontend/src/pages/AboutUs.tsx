@@ -8,9 +8,17 @@ import { toast } from '@/components/ui/use-toast';
 // ---------------------- About Us Page ---------------------- //
 export const About: React.FC = () => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-white to-blue-50 relative overflow-hidden">
+      {/* Background Design Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-32 h-32 bg-foodtruck-teal/5 rounded-full blur-xl"></div>
+        <div className="absolute top-40 right-20 w-48 h-48 bg-foodtruck-gold/10 rounded-full blur-2xl"></div>
+        <div className="absolute bottom-32 left-1/4 w-40 h-40 bg-blue-200/20 rounded-full blur-xl"></div>
+        <div className="absolute bottom-20 right-10 w-24 h-24 bg-foodtruck-teal/8 rounded-full blur-lg"></div>
+      </div>
+
       <Navbar />
-      <main className="flex-grow pt-20 pb-16">
+      <main className="flex-grow pt-20 pb-16 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Hero Section */}
           <header className="text-center mb-16">
@@ -57,11 +65,18 @@ export const About: React.FC = () => {
             <div className="flex justify-center">
               {/* Team Member - Dhruv Gorai */}
               <div className="bg-white rounded-xl shadow-md p-8 max-w-sm">
-                <img
-                  src="/images/dhruv-gorai.jpg.png"
-                  alt="Dhruv Gorai"
-                  className="rounded-full w-32 h-32 mx-auto mb-6 object-cover border-4 border-foodtruck-gold"
-                />
+                <div className="rounded-full w-32 h-32 mx-auto mb-6 border-4 border-foodtruck-gold overflow-hidden bg-gray-100">
+                  <img
+                    src="/images/Dhruv-gorai.png"
+                    alt="Dhruv Gorai"
+                    className="w-full h-full object-cover"
+                    style={{
+                      objectPosition: 'center 20%',
+                      transform: 'scale(1.4)',
+                      backgroundColor: 'transparent'
+                    }}
+                  />
+                </div>
                 <h3 className="text-2xl font-bold text-foodtruck-teal text-center">Dhruv Gorai</h3>
                 <p className="text-foodtruck-slate text-center font-medium">Developer</p>
                 <p className="text-foodtruck-slate text-sm mt-3 text-center leading-relaxed">
